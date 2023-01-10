@@ -30,6 +30,9 @@ deck = [two.amount, three.amount, four.amount, five.amount, six.amount, seven.am
 deal = [random.sample(deck, 2), random.sample(deck, 2)]
 p1 = player("Frank", deal[0])
 p2 = player("Dealer", deal[1])
+# Counters
+wins = []
+losses = []
 
 def dealerStart():
     print (f'Dealer total is: {sum(p2.hand)}')
@@ -70,14 +73,18 @@ def dealerGame():
 def findTheWinner():
     if sum(p1.hand) > 21:
         print ("Dealer wins")
+        return False
     elif sum(p2.hand) > 21:
         print ("Player wins")
+        return True
     elif sum(p1.hand) == sum(p2.hand):
         print("Push")
     elif sum(p1.hand) > sum(p2.hand):
         print ("Player wins")
+        return True
     elif sum(p1.hand) < sum(p2.hand):
         print ("Dealer wins")
+        return False
 
 def resetHands():
     global p1
@@ -93,15 +100,28 @@ def playAgain():
         game()
         dealerGame() 
         findTheWinner()
+        winCounter()
         resetHands()
         playAgain()
     else:
         print("hope you had fun!")
 
+def winCounter():
+    global wins
+    global losses
+    if findTheWinner() == True:
+        wins.append(1)
+    elif findTheWinner() == False:
+        losses.append(1)
+    else:
+        print("No winner")
+    print(f'Total wins:\n{sum(wins)}\nTotal losses:\n{sum(losses)}')
+
 dealerStart()
 game()
 dealerGame() 
 findTheWinner()
+winCounter()
 resetHands()
 playAgain()
 
