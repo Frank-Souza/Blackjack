@@ -8,6 +8,7 @@
  - Shows dealer hand increments. Hitting until hand total is >= 17
  - Displays the winner. Terms: hand total is greater or opponent bust
  - Allows you to play again without rerunning the file
+ - Win counter
  
 
 Things to do:
@@ -16,4 +17,7 @@ Things to do:
 - Allow for multiple players (player argument?)
 - Add blackjack auto win
 - Allow bets
-- Win counter
+
+Known Bug:
+- Will occasionally announce a winner more than oncer per session
+
