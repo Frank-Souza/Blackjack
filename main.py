@@ -1,129 +1,123 @@
 import random
-import math
 
-class cards:
-    def __init__(self, name, amount):
-        self.name = name
-        self.amount = amount
+class Deck:
+    def __init__(self):
+        ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
+        suits = ['hearts', 'diamonds', 'clubs', 'spades']
+        self.cards = [(rank, suit) for rank in ranks for suit in suits]
 
-class player:
-    def __init__(self, name, hand):
-        self.name = name
-        self.hand = hand
+    def shuffle(self):
+        random.shuffle(self.cards)
 
-# Deck
-two = cards("Two", 2)
-three = cards("Three", 3)
-four = cards("Four", 4)
-five = cards("Five", 5)
-six = cards("Six", 6)
-seven = cards("Seven", 7)
-eight = cards("Eight", 8)
-nine = cards("Nine", 9)
-ten = cards("Ten", 10)
-jack = cards("Jack", 10)
-queen = cards("Queen", 10)
-king = cards("King", 10)
-ace = cards("Ace", 11)
+    def deal(self):
+        return self.cards.pop()
 
-deck = [two.amount, three.amount, four.amount, five.amount, six.amount, seven.amount, eight.amount, nine.amount, ten.amount, jack.amount, queen.amount, king.amount, ace.amount]
-deal = [random.sample(deck, 2), random.sample(deck, 2)]
-p1 = player("Frank", deal[0])
-p2 = player("Dealer", deal[1])
-# Counters
-wins = []
-losses = []
+class Player:
+    def __init__(self):
+        self.hand = []
 
-def dealerStart():
-    print (f'Dealer total is: {sum(p2.hand)}')
+    def draw(self, deck, numberOfCards):
+        for i in range(numberOfCards):
+            card = deck.deal()
+            self.hand.append(card)
+    
+    def handValue(self, deck):
+        value = 0
+        for card in deck:
+            rank = card[0]
+            if rank in ['2', '3', '4', '5', '6', '7', '8', '9']:
+                value += int(rank)
+            elif rank in ['10', 'J', 'Q', 'K']:
+                value += 10
+            elif rank == 'A':
+                value += 11
+        return value
 
-def game():
-    print (f'Here is your current hand: \nTotal = {sum(p1.hand)}')
-    i = sum(p1.hand)
-    while True:
-        if i == 21:
-            print('Hand total is 21')
-            break
-        elif i > 21:
-            print ('Bust')
-            break
-        elif input("Hit or Stand?\n") == "hit":
-            p1.hand += (random.sample(deck, 1))
-            i = sum(p1.hand)
-            print (f'Hand total is now: {sum(p1.hand)}')
+class Game:
+    def __init__(self) -> None:
+        pass
+
+    def play(self, value, hand, player, deck, dealer):
+        if value == 21:
+            print('Blackjack!')
+            bust = False
+            return value, hand, bust
+        elif dealer == 21:
+            print('Dealer blackjack')
+            bust = False
+            return value, hand, bust
+        choice = input(f'Here is your hand: {hand} Hit or Stand?\n')
+        bust = False
+        if choice == 'stand':
+            return value, hand, bust
+        while choice == 'hit' and value < 21:
+            player.draw(deck, 1)
+            hand = player.hand
+            value = player.handValue(player.hand)
+            if value < 21:
+                choice = input(f'Here is your hand: {hand} Hit or Stand?\n')
+            else:
+                pass
+        if value > 21:
+            bust = True
+        print(f'Player hand: {value, hand}')
+        return value, hand, bust
+
+    def dealerPlay(self, value, hand, dealer, deck):
+        bust = False
+        if value == 21:
+            print(hand)
+            bust = False
+            return value, hand, bust
+        while value < 17:
+            dealer.draw(deck, 1)
+            value = dealer.handValue(dealer.hand)
+        if value > 21:
+            bust = True
+        print (f'Dealer hand: {value, hand}')
+        return value, hand, bust
+
+    def findWinner(self, pbust, dbust, pvalue, dvalue):
+        if pbust == True:
+            print ('Dealer wins')
+        elif dbust == True:
+            print ('Player wins')
+        elif pvalue > dvalue:
+            print ('Player wins')
+        elif dvalue > pvalue:
+            print ("Dealer wins")
+        elif dvalue == pvalue:
+            print ("Push")
         else:
-            break
+            print ('How did we end up here')
 
-def dealerGame():
-    print("Dealer game starts:")
-    if sum(p2.hand) < 17:
-        p2.hand += (random.sample(deck, 1))
-        print(f'Dealers hand is now {sum(p2.hand)}')
-        if sum(p2.hand) < 17:
-            p2.hand += (random.sample(deck, 1))
-            print(f'Dealers hand is now {sum(p2.hand)}')
-            if sum(p2.hand) < 17:
-                p2.hand += (random.sample(deck, 1))
-                print(f'Dealers hand is now {sum(p2.hand)}')
-    elif sum(p2.hand) >= 17 and sum(p2.hand) <= 21:
-        print (f'Dealers hand is {sum(p2.hand)}')
-    else:
-        print (f'Dealer bust with a hand of {sum(p2.hand)}')
+    def initializeGame(self):
+        deck = Deck()
+        deck.shuffle()
+        player = Player()
+        dealer = Player()
+        player.draw(deck, 2)
+        dealer.draw(deck, 2)
+        playerScore = player.handValue(player.hand)
+        dealerScore = dealer.handValue(dealer.hand)
 
-def findTheWinner():
-    if sum(p1.hand) > 21:
-        print ("Dealer wins")
-        return False
-    elif sum(p2.hand) > 21:
-        print ("Player wins")
-        return True
-    elif sum(p1.hand) == sum(p2.hand):
-        print("Push")
-    elif sum(p1.hand) > sum(p2.hand):
-        print ("Player wins")
-        return True
-    elif sum(p1.hand) < sum(p2.hand):
-        print ("Dealer wins")
-        return False
+        game = Game()
+        print(f'player = {playerScore} dealer = {dealerScore}')
 
-def resetHands():
-    global p1
-    global p2
-    global deal
-    deal = [random.sample(deck, 2), random.sample(deck, 2)]
-    p1 = player("Frank", deal[0])
-    p2 = player("Dealer", deal[1])
+        player_score, player_hand, player_bust = game.play(playerScore, player.hand, player, deck, dealerScore)
+        dealer_score, dealer_hand, dealer_bust = game.dealerPlay(dealerScore, dealer.hand, dealer, deck)
+        game.findWinner(player_bust, dealer_bust, player_score, dealer_score)
+        choice = input(f'Want to play again?(y/n)\n')
+        while choice != 'n' and choice != 'y':
+            print('Please enter y or n')
+            choice = input(f'Want to play again?(y/n)\n')
+        if choice == 'n':
+            print('Hope you had fun!')
+        elif choice == 'y':
+            Game().initializeGame()
 
-def playAgain():
-    if input("Type yes if you would like to play again\n") == "yes":
-        dealerStart()
-        game()
-        dealerGame() 
-        findTheWinner()
-        winCounter()
-        resetHands()
-        playAgain()
-    else:
-        print("hope you had fun!")
-
-def winCounter():
-    global wins
-    global losses
-    if findTheWinner() == True:
-        wins.append(1)
-    elif findTheWinner() == False:
-        losses.append(1)
-    else:
-        print("No winner")
-    print(f'Total wins:\n{sum(wins)}\nTotal losses:\n{sum(losses)}')
-
-dealerStart()
-game()
-dealerGame() 
-findTheWinner()
-winCounter()
-resetHands()
-playAgain()
+print(len(Deck().cards))
+Game().initializeGame()
 
 
 
